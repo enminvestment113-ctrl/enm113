@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+<title>ENM - Investment Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root{--bg:#0a0f0a;--bg2:#111a11;--card:#162016;--card2:#1a2b1a;--green:#00c853;--green-dim:#00a844;--green-dark:#007a30;--green-glow:rgba(0,200,83,0.15);--green-glow2:rgba(0,200,83,0.08);--text:#e8f5e8;--text2:#a0c4a0;--text3:#5a7a5a;--border:#1e3a1e;--danger:#ff5252;--warning:#ffab40;--pending:#ffab40;--gold:#ffd740;--telebirr:#00a651;--telebirr-light:#00c85e;--success:#00c853;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
+  ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--bg2);}::-webkit-scrollbar-thumb{background:var(--green-dark);border-radius:4px;}
+  .app-shell{max-width:430px;margin:0 auto;min-height:100vh;position:relative;background:var(--bg);overflow:hidden;}
+  .bg-decor{position:fixed;top:0;left:50%;transform:translateX(-50%);width:430px;height:100%;pointer-events:none;z-index:0;overflow:hidden;}
+  .bg-decor::before{content:'';position:absolute;top:-120px;right:-80px;width:300px;height:300px;background:radial-gradient(circle,rgba(0,200,83,0.12)0%,transparent 70%);border-radius:50%;animation:fb 8s ease-in-out infinite;}
+  .bg-decor::after{content:'';position:absolute;bottom:100px;left:-60px;width:250px;height:250px;background:radial-gradient(circle,rgba(0,200,83,0.06)0%,transparent 70%);border-radius:50%;animation:fb 10s ease-in-out infinite reverse;}
+  @keyframes fb{0%,100%{transform:translate(0,0)scale(1);}50%{transform:translate(20px,-30px)scale(1.1);}}
+  .page{display:none;position:relative;z-index:1;min-height:100vh;padding-bottom:85px;animation:pi .35s ease-out;}
+  .page.active{display:block;}
+  @keyframes pi{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+  .top-bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 12px;position:sticky;top:0;z-index:50;background:linear-gradient(to bottom,var(--bg)60%,transparent);backdrop-filter:blur(10px);}
+  .top-bar .brand{font-family:'Outfit',sans-serif;font-weight:900;font-size:22px;letter-spacing:3px;color:var(--green);text-shadow:0 0 20px rgba(0,200,83,0.3);}
+  .top-bar .sign-out{color:var(--text2);font-size:13px;cursor:pointer;padding:6px 12px;border:1px solid var(--border);border-radius:20px;transition:all .2s;background:transparent;font-family:'DM Sans',sans-serif;}
+  .top-bar .sign-out:hover{border-color:var(--danger);color:var(--danger);}
+  .top-bar .back-btn{color:var(--text3);font-size:13px;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif;}
+  .auth-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:40px 24px;background:linear-gradient(160deg,#0a1a0a 0%,#0d260d 40%,#0a0f0a 100%);}
+  .auth-logo{font-family:'Outfit',sans-serif;font-weight:900;font-size:48px;letter-spacing:6px;color:var(--green);margin-bottom:6px;text-shadow:0 0 40px rgba(0,200,83,0.25);}
+  .auth-tagline{color:var(--text3);font-size:13px;margin-bottom:40px;letter-spacing:1px;}
+  .auth-form{width:100%;max-width:360px;}
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block;font-size:12px;color:var(--text3);margin-bottom:6px;font-weight:500;text-transform:uppercase;letter-spacing:.5px;}
+  .form-group input,.form-group textarea,.form-group select{width:100%;padding:14px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;resize:none;}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--green);box-shadow:0 0 0 3px var(--green-glow);}
+  .form-group input::placeholder,.form-group textarea::placeholder{color:var(--text3);}
+  .form-group input.input-error{border-color:var(--danger)!important;box-shadow:0 0 0 3px rgba(255,82,82,0.15)!important;}
+  .form-group select{appearance:none;cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%235a7a5a' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;}
+  .form-group select option{background:var(--card2);color:var(--text);}
+  .phone-input-wrap{display:flex;gap:8px;}
+  .phone-prefix{width:80px;padding:14px 10px;background:var(--card2);border:1.5px solid var(--border);border-radius:12px;color:var(--text2);font-size:14px;text-align:center;font-weight:600;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+  .phone-input-wrap input{flex:1;}
+  .btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,var(--green)0%,var(--green-dim)100%);border:none;border-radius:12px;color:#000;font-size:16px;font-weight:700;font-family:'Outfit',sans-serif;letter-spacing:1px;cursor:pointer;transition:all .2s;margin-top:8px;position:relative;overflow:hidden;}
+  .btn-primary::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);transition:left .5s;}
+  .btn-primary:hover::after{left:100%;}
+  .btn-primary:active{transform:scale(.98);}
+  .btn-telebirr{background:linear-gradient(135deg,var(--telebirr)0%,var(--telebirr-light)100%);}
+  .auth-link{text-align:center;margin-top:20px;color:var(--text3);font-size:14px;}
+  .auth-link a{color:var(--green);text-decoration:none;font-weight:600;cursor:pointer;}
+  .user-header{display:flex;align-items:center;gap:14px;padding:0 20px;margin-bottom:20px;}
+  .user-avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--green-dark),var(--green));display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:800;font-size:18px;color:#000;flex-shrink:0;}
+  .user-info .user-phone{font-size:15px;font-weight:600;}
+  .user-info .user-level{display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 10px;background:linear-gradient(135deg,var(--green-dark),var(--green-dim));border-radius:20px;font-size:11px;font-weight:700;color:#000;letter-spacing:.5px;}
+  .balance-card{margin:0 20px 20px;padding:24px;background:linear-gradient(135deg,#0d2a0d 0%,#143514 50%,#0d2a0d 100%);border:1px solid var(--border);border-radius:20px;position:relative;overflow:hidden;}
+  .balance-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,200,83,0.15),transparent 70%);border-radius:50%;}
+  .balance-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+  .balance-amount{font-family:'Outfit',sans-serif;font-size:36px;font-weight:800;color:var(--green);text-shadow:0 0 30px rgba(0,200,83,0.2);}
+  .balance-amount span{font-size:18px;font-weight:500;margin-right:4px;}
+  .balance-row{display:flex;gap:20px;margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
+  .balance-item{flex:1;cursor:pointer;transition:opacity .2s;}
+  .balance-item:hover{opacity:.8;}
+  .balance-item .bi-label{font-size:11px;color:var(--text3);margin-bottom:4px;}
+  .balance-item .bi-value{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+  .balance-item .bi-arrow{color:var(--text3);font-size:10px;margin-left:4px;}
+  .checkin-card{margin:0 20px 20px;padding:18px 20px;background:var(--card);border:1px solid var(--border);border-radius:16px;display:flex;align-items:center;justify-content:space-between;}
+  .checkin-left{display:flex;align-items:center;gap:12px;}
+  .checkin-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--green-dark),var(--green));display:flex;align-items:center;justify-content:center;color:#000;font-size:18px;}
+  .checkin-text h4{font-size:14px;font-weight:600;}
+  .checkin-text p{font-size:12px;color:var(--text3);margin-top:2px;}
+  .btn-checkin{padding:10px 20px;background:var(--green);border:none;border-radius:10px;color:#000;font-weight:700;font-size:13px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+  .btn-checkin:active{transform:scale(.95);}
+  .btn-checkin.done{background:var(--card2);color:var(--text3);cursor:default;}
+  .action-row{display:flex;gap:10px;padding:0 20px;margin-bottom:24px;}
+  .action-btn{flex:1;padding:14px 8px;background:var(--card);border:1px solid var(--border);border-radius:14px;text-align:center;cursor:pointer;transition:all .25s;}
+  .action-btn:hover{border-color:var(--green-dark);background:var(--card2);transform:translateY(-2px);}
+  .action-btn:active{transform:scale(.97);}
+  .action-btn i{font-size:22px;color:var(--green);margin-bottom:6px;display:block;}
+  .action-btn span{font-size:12px;font-weight:600;color:var(--text2);}
+  .section-title{padding:0 20px;font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px;}
+  .service-list{padding:0 20px;margin-bottom:20px;}
+  .service-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;}
+  .service-item:hover{background:var(--card2);border-color:var(--green-dark);}
+  .service-item .si-icon{width:42px;height:42px;border-radius:12px;background:var(--green-glow);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:16px;flex-shrink:0;}
+  .service-item .si-text{flex:1;}
+  .service-item .si-text h4{font-size:14px;font-weight:600;}
+  .service-item .si-text p{font-size:12px;color:var(--text3);margin-top:2px;}
+  .service-item .si-arrow{color:var(--text3);font-size:14px;}
+  .vip-page-title{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;padding:20px 20px 6px;text-align:center;}
+  .vip-page-sub{text-align:center;font-size:13px;color:var(--text3);padding:0 20px 20px;}
+  .vip-table-wrap{margin:0 16px;border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--card);}
+  .vip-table{width:100%;border-collapse:collapse;}
+  .vip-table thead th{padding:14px 8px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);background:var(--card2);border-bottom:1px solid var(--border);text-align:center;}
+  .vip-table tbody td{padding:14px 8px;text-align:center;font-size:13px;border-bottom:1px solid rgba(30,58,30,0.5);font-weight:500;}
+  .vip-table tbody tr:last-child td{border-bottom:none;}
+  .vip-table tbody tr{transition:background .2s;}
+  .vip-table tbody tr:hover{background:var(--green-glow2);}
+  .vip-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-weight:700;font-size:12px;font-family:'Outfit',sans-serif;}
+  .vip-badge.v1{background:rgba(0,200,83,0.15);color:#00c853;}.vip-badge.v2{background:rgba(0,176,255,0.15);color:#00b0ff;}.vip-badge.v3{background:rgba(255,171,64,0.15);color:#ffab40;}.vip-badge.v4{background:rgba(255,82,82,0.15);color:#ff5252;}.vip-badge.v5{background:rgba(213,0,249,0.15);color:#d500f9;}.vip-badge.v6{background:rgba(255,215,64,0.15);color:#ffd740;}.vip-badge.v8{background:rgba(255,64,129,0.15);color:#ff4081;}.vip-badge.v9{background:linear-gradient(135deg,rgba(255,215,64,0.2),rgba(255,64,129,0.2));color:#ffd740;}
+  .amount-cell{color:var(--text);font-weight:600;}.income-cell{color:var(--green);font-weight:700;}
+  .recharge-header{text-align:center;padding:20px;}
+  .recharge-header h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;}
+  .telebirr-icon-wrap{width:80px;height:80px;margin:14px auto;border-radius:50%;background:linear-gradient(135deg,var(--telebirr),var(--telebirr-light));display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff;box-shadow:0 0 30px rgba(0,166,81,0.3);animation:tpulse 2s ease-in-out infinite;}
+  @keyframes tpulse{0%,100%{box-shadow:0 0 0 0 rgba(0,166,81,0.3);}50%{box-shadow:0 0 0 14px rgba(0,166,81,0);}}
+  .telebirr-info-box{margin:0 20px 20px;padding:18px;background:rgba(0,166,81,0.08);border:1px solid rgba(0,166,81,0.25);border-radius:14px;text-align:center;}
+  .telebirr-info-box .tb-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+  .telebirr-info-box .tb-number{font-family:'Outfit',sans-serif;font-size:28px;font-weight:800;color:var(--telebirr-light);letter-spacing:2px;cursor:pointer;}
+  .telebirr-info-box .tb-hint{font-size:12px;color:var(--text3);margin-top:8px;line-height:1.5;}
+  .telebirr-info-box .tb-copy{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:6px 16px;background:var(--telebirr);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+  .telebirr-info-box .tb-copy:active{transform:scale(.95);}
+  .recharge-section{padding:0 20px;margin-bottom:20px;}
+  .recharge-section label{display:block;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;font-weight:600;}
+  .recharge-input-wrap{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:12px;overflow:hidden;}
+  .recharge-input-wrap input{flex:1;padding:14px 16px;background:transparent;border:none;color:var(--text);font-size:18px;font-weight:700;font-family:'Outfit',sans-serif;outline:none;}
+  .recharge-input-wrap input.normal-input{font-size:14px;font-family:'DM Sans',sans-serif;font-weight:500;letter-spacing:1px;}
+  .recharge-input-wrap .unit{padding:0 16px;color:var(--text3);font-weight:600;font-size:14px;}
+  .amount-presets{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;}
+  .amount-preset{padding:14px 8px;background:var(--card);border:1.5px solid var(--border);border-radius:12px;text-align:center;cursor:pointer;transition:all .2s;font-family:'Outfit',sans-serif;font-weight:700;font-size:15px;color:var(--text);}
+  .amount-preset:hover,.amount-preset.selected{border-color:var(--telebirr);background:rgba(0,166,81,0.1);color:var(--telebirr-light);}
+  .tid-hint{margin:0 20px 14px;padding:12px 16px;background:rgba(0,166,81,0.06);border:1px solid rgba(0,166,81,0.15);border-radius:10px;font-size:12px;color:var(--text3);line-height:1.5;display:flex;align-items:center;gap:8px;}
+  .tid-hint i{color:var(--telebirr);font-size:14px;flex-shrink:0;}
+  .products-grid{padding:0 16px;display:grid;gap:14px;}
+  .product-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:all .25s;}
+  .product-card:hover{border-color:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3);}
+  .product-top{padding:20px 18px 14px;display:flex;align-items:center;gap:14px;}
+  .product-icon{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Outfit',sans-serif;font-weight:900;font-size:16px;color:#000;flex-shrink:0;}
+  .product-info{flex:1;}.product-info h3{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;margin-bottom:2px;}.product-info p{font-size:12px;color:var(--text3);}
+  .product-mid{padding:0 18px 14px;display:flex;justify-content:space-between;align-items:center;}
+  .product-price{font-family:'Outfit',sans-serif;font-size:22px;font-weight:800;color:var(--green);}.product-price small{font-size:13px;font-weight:500;color:var(--text3);margin-right:2px;}
+  .product-income{text-align:right;}.product-income .pi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;}.product-income .pi-value{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--gold);}
+  .product-bot{padding:0 18px 18px;}
+  .btn-buy{width:100%;padding:13px;border:1.5px solid var(--green-dark);border-radius:12px;background:var(--green-glow);color:var(--green);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-buy:hover{background:var(--green);color:#000;border-color:var(--green);}.btn-buy:active{transform:scale(.97);}
+  .task-hero{margin:0 20px 20px;padding:22px;background:linear-gradient(135deg,#0d2a0d,#143514);border:1px solid var(--border);border-radius:18px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;}
+  .task-hero::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(255,215,64,0.12),transparent 70%);border-radius:50%;}
+  .task-hero-icon{width:56px;height:56px;border-radius:16px;background:rgba(255,215,64,0.12);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--gold);flex-shrink:0;}
+  .task-hero-info{flex:1;}.task-hero-info h2{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px;}.task-hero-info p{font-size:12px;color:var(--text3);line-height:1.4;}
+  .task-hero-earned{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;color:var(--gold);flex-shrink:0;}.task-hero-earned small{font-size:11px;color:var(--text3);font-weight:500;display:block;text-align:right;}
+  .task-lock-banner{margin:0 20px 20px;padding:20px;background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.2);border-radius:16px;text-align:center;}
+  .task-lock-banner i{font-size:36px;color:var(--danger);margin-bottom:10px;display:block;}
+  .task-lock-banner h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--danger);margin-bottom:6px;}
+  .task-lock-banner p{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px;}
+  .task-lock-banner .btn-go-buy{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+  .task-lock-banner .btn-go-buy:active{transform:scale(.95);}
+  .task-progress-bar{margin:0 20px 18px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:14px;}
+  .task-progress-bar .tpb-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .task-progress-bar .tpb-top span{font-size:12px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+  .task-progress-bar .tpb-top strong{font-family:'Outfit',sans-serif;font-size:14px;color:var(--green);}
+  .tpb-track{width:100%;height:8px;background:var(--card2);border-radius:8px;overflow:hidden;}
+  .tpb-fill{height:100%;background:linear-gradient(90deg,var(--green-dark),var(--green));border-radius:8px;transition:width .5s ease;}
+  .task-section-title{padding:0 20px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .task-section-title i{font-size:13px;}
+  .task-list{padding:0 20px;margin-bottom:24px;}
+  .task-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px 18px;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:all .2s;}
+  .task-card:hover{border-color:var(--green-dark);}
+  .task-card.task-locked{opacity:.45;pointer-events:none;}
+  .task-card.task-done{border-color:rgba(0,200,83,0.3);}
+  .task-card .tc-icon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .task-card .tc-info{flex:1;min-width:0;}.task-card .tc-info h4{font-size:14px;font-weight:600;margin-bottom:2px;}.task-card .tc-info p{font-size:11px;color:var(--text3);line-height:1.4;}
+  .task-card .tc-reward{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;color:var(--gold);flex-shrink:0;white-space:nowrap;}.task-card .tc-reward small{font-size:11px;font-weight:500;color:var(--text3);}
+  .task-card .tc-btn{padding:8px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;border:none;font-family:'DM Sans',sans-serif;flex-shrink:0;white-space:nowrap;}
+  .tc-btn-do{background:var(--green);color:#000;}.tc-btn-do:active{transform:scale(.95);}
+  .tc-btn-claim{background:rgba(255,215,64,0.15);color:var(--gold);border:1px solid rgba(255,215,64,0.3)!important;}.tc-btn-claim:active{transform:scale(.95);}
+  .tc-btn-done{background:var(--card2);color:var(--text3);cursor:default;}
+  .tc-lock-icon{color:var(--danger);font-size:16px;flex-shrink:0;}
+  .wd-schedule-card{margin:0 20px 16px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:16px;position:relative;overflow:hidden;}
+  .wd-schedule-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--green),var(--gold),var(--green));}
+  .wd-schedule-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+  .wd-schedule-header .wsh-icon{width:44px;height:44px;border-radius:12px;background:rgba(255,215,64,0.12);display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:18px;flex-shrink:0;}
+  .wd-schedule-header h3{font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;}.wd-schedule-header p{font-size:11px;color:var(--text3);margin-top:2px;}
+  .wd-time-row{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card2);border-radius:10px;margin-bottom:8px;border:1px solid rgba(30,58,30,0.4);}
+  .wd-time-row:last-child{margin-bottom:0;}
+  .wd-time-row .wtr-time{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--green);min-width:100px;flex-shrink:0;}
+  .wd-time-row .wtr-sep{width:1px;height:28px;background:var(--border);flex-shrink:0;}
+  .wd-time-row .wtr-info{flex:1;}.wd-time-row .wtr-info h4{font-size:13px;font-weight:600;margin-bottom:2px;}.wd-time-row .wtr-info p{font-size:11px;color:var(--text3);}
+  .wd-time-row .wtr-status{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;flex-shrink:0;}
+  .wtr-active{background:rgba(0,200,83,0.12);color:var(--green);}.wtr-closed{background:rgba(255,82,82,0.1);color:var(--danger);}
+  .wd-rules-card{margin:0 20px 16px;padding:18px;background:rgba(255,171,64,0.06);border:1px solid rgba(255,171,64,0.15);border-radius:14px;}
+  .wd-rules-card h4{font-family:'Outfit',sans-serif;font-size:14px;font-weight:700;color:var(--warning);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .wd-rule-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;font-size:13px;color:var(--text2);line-height:1.5;}.wd-rule-item:last-child{margin-bottom:0;}.wd-rule-item i{color:var(--warning);font-size:8px;margin-top:6px;flex-shrink:0;}
+  .wd-stats-row{display:flex;gap:10px;margin:0 20px 16px;}
+  .wd-stat-box{flex:1;padding:16px 14px;background:var(--card);border:1px solid var(--border);border-radius:14px;text-align:center;}
+  .wd-stat-box .wsb-icon{font-size:20px;margin-bottom:8px;display:block;}.wd-stat-box .wsb-value{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;margin-bottom:2px;}.wd-stat-box .wsb-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;}
+  .records-tabs{display:flex;margin:0 20px 16px;background:var(--card);border-radius:12px;padding:4px;border:1px solid var(--border);}
+  .records-tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;font-weight:600;color:var(--text3);border-radius:10px;cursor:pointer;transition:all .25s;border:none;background:transparent;font-family:'DM Sans',sans-serif;}
+  .records-tab.active{background:var(--green);color:#000;font-weight:700;}
+  .record-list{padding:0 20px;}
+  .record-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;transition:all .2s;}
+  .record-card:hover{border-color:var(--green-dark);}
+  .record-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+  .record-order{font-size:11px;color:var(--text3);font-family:monospace;word-break:break-all;flex:1;}
+  .record-status{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;flex-shrink:0;margin-left:8px;}
+  .status-pending{background:rgba(255,171,64,0.15);color:var(--pending);}
+  .status-completed{background:rgba(0,200,83,0.15);color:var(--success);}
+  .record-details{display:flex;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);}
+  .record-detail-item{text-align:center;flex:1;}.record-detail-item .rdi-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px;}
+  .record-detail-item .rdi-value{font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;}
+  .rdi-amount{color:var(--text);}.rdi-arrival{color:var(--green);}.rdi-date{color:var(--text2);font-size:11px!important;line-height:1.4;}.rdi-product{color:var(--gold);font-size:13px!important;}.rdi-schedule{color:var(--telebirr-light);font-size:12px!important;}.rdi-tid{color:var(--text3);font-size:11px!important;font-family:monospace!important;}
+  .support-hero{margin:0 20px 24px;padding:28px 22px;background:linear-gradient(135deg,#0d2a0d,#143514);border:1px solid var(--border);border-radius:20px;text-align:center;position:relative;overflow:hidden;}
+  .support-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;background:radial-gradient(circle,rgba(0,200,83,0.12),transparent 70%);border-radius:50%;}
+  .support-hero-icon{width:64px;height:64px;margin:0 auto 14px;border-radius:50%;background:var(--green-glow);border:2px solid var(--green-dark);display:flex;align-items:center;justify-content:center;font-size:26px;color:var(--green);}
+  .support-hero h2{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px;}.support-hero p{font-size:13px;color:var(--text3);line-height:1.5;}
+  .support-section{padding:0 20px;margin-bottom:22px;}
+  .support-section-title{font-family:'Outfit',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .support-section-title i{color:var(--green);font-size:14px;}
+  .faq-item{background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+  .faq-q{padding:16px 18px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px;transition:background .2s;}
+  .faq-q:hover{background:var(--card2);}
+  .faq-q i{color:var(--text3);font-size:12px;transition:transform .3s;}.faq-item.open .faq-q i{transform:rotate(180deg);}
+  .faq-a{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s ease;padding:0 18px;}
+  .faq-item.open .faq-a{max-height:200px;padding:0 18px 16px;}
+  .faq-a p{font-size:13px;color:var(--text2);line-height:1.7;}
+  .support-channel{display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--card);border:1px solid var(--border);border-radius:14px;margin-bottom:10px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);}
+  .support-channel:hover{background:var(--card2);border-color:var(--green-dark);transform:translateY(-1px);}
+  .support-channel .sc-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .support-channel .sc-text{flex:1;}.support-channel .sc-text h4{font-size:14px;font-weight:600;margin-bottom:2px;}.support-channel .sc-text p{font-size:12px;color:var(--text3);}
+  .support-channel .sc-tag{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;margin-left:auto;flex-shrink:0;}
+  .sc-tag-open{background:rgba(0,200,83,0.12);color:var(--green);}
+  .ticket-form{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+  .ticket-form .form-group{margin-bottom:14px;}
+  .ticket-form label{display:block;font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600;}
+  .ticket-form textarea{min-height:100px;}
+  .btn-submit-ticket{width:100%;padding:13px;background:var(--green);border:none;border-radius:10px;color:#000;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .btn-submit-ticket:active{transform:scale(.97);}
+  .about-content{padding:20px;}.about-content p{color:var(--text2);font-size:14px;line-height:1.8;margin-bottom:16px;}.about-content h3{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;margin-bottom:10px;color:var(--green);}
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:linear-gradient(to top,var(--bg)80%,transparent);padding:8px 4px 12px;display:none;z-index:100;backdrop-filter:blur(20px);}
+  .bottom-nav.show{display:flex;}
+  .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 1px;cursor:pointer;transition:all .2s;border-radius:12px;border:none;background:transparent;font-family:'DM Sans',sans-serif;}
+  .nav-item i{font-size:18px;color:var(--text3);transition:color .2s;}.nav-item span{font-size:9px;color:var(--text3);font-weight:600;transition:color .2s;}
+  .nav-item.active i{color:var(--green);}.nav-item.active span{color:var(--green);}
+  .toast-container{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;width:100%;max-width:400px;padding:0 20px;pointer-events:none;}
+  .toast{padding:14px 20px;border-radius:12px;margin-bottom:8px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;animation:ti .35s ease-out,to .3s ease-in 2.5s forwards;pointer-events:auto;}
+  .toast-success{background:rgba(0,200,83,0.15);border:1px solid var(--green-dark);color:var(--green);}
+  .toast-warning{background:rgba(255,171,64,0.15);border:1px solid rgba(255,171,64,0.3);color:var(--warning);}
+  .toast-error{background:rgba(255,82,82,0.15);border:1px solid rgba(255,82,82,0.3);color:var(--danger);}
+  @keyframes ti{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes to{to{opacity:0;transform:translateY(-20px);}}
+  .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:200;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px 24px;width:100%;max-width:360px;text-align:center;animation:mp .3s ease-out;}
+  @keyframes mp{from{opacity:0;transform:scale(.9);}to{opacity:1;transform:scale(1);}}
+  .modal-box h3{font-family:'Outfit',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px;}.modal-box p{color:var(--text2);font-size:14px;margin-bottom:20px;line-height:1.6;}
+  .modal-btns{display:flex;gap:10px;}.modal-btns button{flex:1;padding:12px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;border:none;}
+  .modal-btn-cancel{background:var(--card2);color:var(--text2);border:1px solid var(--border)!important;}.modal-btn-confirm{background:var(--green);color:#000;}
+  .modal-btn-confirm:active,.modal-btn-cancel:active{transform:scale(.96);}
+  #particles{position:fixed;top:0;left:50%;transform:translateX(-50%);width:430px;height:100%;pointer-events:none;z-index:0;}
+  @media(min-width:431px){body{background:#050805;}.app-shell{border-left:1px solid var(--border);border-right:1px solid var(--border);box-shadow:0 0 80px rgba(0,200,83,0.05);}}
+</style>
+</head>
+<body>
+<canvas id="particles"></canvas>
+<div class="bg-decor"></div>
+<div class="toast-container" id="toastContainer"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal-box"><h3 id="modalTitle">Confirm</h3><p id="modalMessage">Are you sure?</p><div class="modal-btns"><button class="modal-btn-cancel" onclick="closeModal()">Cancel</button><button class="modal-btn-confirm" id="modalConfirmBtn">Confirm</button></div></div></div>
+
+<div class="app-shell">
+<!-- REGISTER -->
+<div class="page active" id="pageRegister">
+  <div class="auth-page">
+    <div class="auth-logo">ENM</div>
+    <div class="auth-tagline">Smart Investment Platform</div>
+    <form class="auth-form" onsubmit="return handleRegister(event)">
+      <div class="form-group"><label>Phone Number</label><div class="phone-input-wrap"><div class="phone-prefix">+251</div><input type="tel" id="regPhone" placeholder="9XX XXX XXX" maxlength="12" required></div></div>
+      <div class="form-group"><label>Enter Password</label><input type="password" id="regPass" placeholder="At least 6 characters" minlength="6" required></div>
+      <div class="form-group"><label>Re-enter Password</label><input type="password" id="regPassConfirm" placeholder="Confirm password" required></div>
+      <div class="form-group"><label>Invitation Code</label><input type="text" id="regCode" placeholder="Enter invitation code" value="ENM2026" required></div>
+      <button type="submit" class="btn-primary">Register</button>
+    </form>
+    <div class="auth-link">Already have an account? <a onclick="showPage('pageLogin')">Go to login &gt;</a></div>
+  </div>
+</div>
+<!-- LOGIN -->
+<div class="page" id="pageLogin">
+  <div class="auth-page">
+    <div class="auth-logo">ENM</div>
+    <div class="auth-tagline">Welcome Back</div>
+    <form class="auth-form" onsubmit="return handleLogin(event)">
+      <div class="form-group"><label>Phone Number</label><div class="phone-input-wrap"><div class="phone-prefix">+251</div><input type="tel" id="loginPhone" placeholder="9XX XXX XXX" required></div></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password" required></div>
+      <button type="submit" class="btn-primary">Login</button>
+    </form>
+    <div class="auth-link">Don't have an account? <a onclick="showPage('pageRegister')">Register &gt;</a></div>
+  </div>
+</div>
+<!-- HOME -->
+<div class="page" id="pageHome">
+  <div class="top-bar"><div class="brand">ENM</div><button class="sign-out" onclick="handleSignOut()"><i class="fas fa-sign-out-alt"></i> Sign out</button></div>
+  <div class="user-header"><div class="user-avatar" id="userAvatar">U</div><div class="user-info"><div class="user-phone" id="userPhone">+251 956 899 452</div><div class="user-level"><i class="fas fa-crown"></i> <span id="userLevel">Lv1</span></div></div></div>
+  <div class="balance-card">
+    <div class="balance-label">Account Balance</div>
+    <div class="balance-amount"><span>ETB</span><span id="balanceValue">350</span></div>
+    <div class="balance-row">
+      <div class="balance-item" onclick="showPage('pageWithdraw')"><div class="bi-label">Cumulative Income</div><div class="bi-value">ETB 1,250 <i class="fas fa-chevron-right bi-arrow"></i></div></div>
+      <div class="balance-item" onclick="showPage('pageRecords')"><div class="bi-label">Today's Income</div><div class="bi-value">ETB 454 <i class="fas fa-chevron-right bi-arrow"></i></div></div>
+    </div>
+  </div>
+  <div class="checkin-card"><div class="checkin-left"><div class="checkin-icon"><i class="fas fa-calendar-check"></i></div><div class="checkin-text"><h4>Daily Check-in</h4><p>Check in to claim your reward</p></div></div><button class="btn-checkin" id="checkinBtn" onclick="handleCheckin()">Check-in now</button></div>
+  <div class="action-row">
+    <div class="action-btn" onclick="navTo('pageTasks',1)"><i class="fas fa-tasks"></i><span>Tasks</span></div>
+    <div class="action-btn" onclick="navTo('pageProducts',2)"><i class="fas fa-shopping-bag"></i><span>Products</span></div>
+    <div class="action-btn" onclick="navTo('pageRecharge',3)"><i class="fas fa-bolt"></i><span>Recharge</span></div>
+    <div class="action-btn" onclick="showPage('pageRecords')"><i class="fas fa-list-alt"></i><span>Records</span></div>
+  </div>
+  <div class="section-title">My Services</div>
+  <div class="service-list">
+    <div class="service-item" onclick="navTo('pageTasks',1)"><div class="si-icon" style="background:rgba(255,215,64,0.12);color:var(--gold);"><i class="fas fa-tasks"></i></div><div class="si-text"><h4>Task Center</h4><p>Complete tasks and earn rewards</p></div><i class="fas fa-chevron-right si-arrow"></i></div>
+    <div class="service-item" onclick="navTo('pageProducts',2)"><div class="si-icon"><i class="fas fa-gem"></i></div><div class="si-text"><h4>Buy Products</h4><p>Purchase VIP investment plans</p></div><i class="fas fa-chevron-right si-arrow"></i></div>
+    <div class="service-item" onclick="showPage('pageVip')"><div class="si-icon"><i class="fas fa-table"></i></div><div class="si-text"><h4>VIP Level Table</h4><p>View all plans & daily income</p></div><i class="fas fa-chevron-right si-arrow"></i></div>
+    <div class="service-item" onclick="showPage('pageSupport')"><div class="si-icon" style="background:rgba(255,171,64,0.12);color:var(--warning);"><i class="fas fa-headset"></i></div><div class="si-text"><h4>Support Center</h4><p>Get help via Telegram</p></div><i class="fas fa-chevron-right si-arrow"></i></div>
+    <div class="service-item" onclick="showPage('pageAbout')"><div class="si-icon"><i class="fas fa-info-circle"></i></div><div class="si-text"><h4>About Us</h4><p>Learn more about ENM</p></div><i class="fas fa-chevron-right si-arrow"></i></div>
+  </div>
+</div>
+<!-- TASKS -->
+<div class="page" id="pageTasks">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="vip-page-title" style="padding-top:24px;">Task Center</div>
+  <div class="vip-page-sub">Complete tasks to earn bonus rewards</div>
+  <div class="task-hero"><div class="task-hero-icon"><i class="fas fa-trophy"></i></div><div class="task-hero-info"><h2>Task Earnings</h2><p>Complete tasks to increase your bonus</p></div><div class="task-hero-earned"><small>Total Earned</small>ETB <span id="taskTotalEarned">0</span></div></div>
+  <div class="task-lock-banner" id="taskLockBanner" style="display:none;"><i class="fas fa-lock"></i><h3>Tasks Locked</h3><p>You need to purchase at least one VIP product before you can perform tasks.</p><button class="btn-go-buy" onclick="navTo('pageProducts',2)"><i class="fas fa-shopping-cart"></i> Buy a Product</button></div>
+  <div class="task-progress-bar" id="taskProgressBar" style="display:none;"><div class="tpb-top"><span>Today's Progress</span><strong id="taskProgressText">0 / 0</strong></div><div class="tpb-track"><div class="tpb-fill" id="taskProgressFill" style="width:0%"></div></div></div>
+  <div class="task-section-title"><i class="fas fa-sun" style="color:var(--gold);"></i> Daily Tasks <span style="font-size:11px;color:var(--text3);font-weight:400;margin-left:auto;">Reset daily</span></div>
+  <div class="task-list" id="dailyTasksList"></div>
+  <div class="task-section-title"><i class="fas fa-star" style="color:var(--gold);"></i> One-Time Tasks</div>
+  <div class="task-list" id="oneTimeTasksList"></div>
+</div>
+<!-- PRODUCTS -->
+<div class="page" id="pageProducts">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="vip-page-title">Buy Products</div>
+  <div class="vip-page-sub">Select a VIP plan and start earning daily income</div>
+  <div class="products-grid" id="productsGrid"></div>
+</div>
+<!-- VIP TABLE -->
+<div class="page" id="pageVip">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="vip-page-title">VIP Investment Plans</div>
+  <div class="vip-page-sub">Choose your level and start earning daily income</div>
+  <div class="vip-table-wrap"><table class="vip-table"><thead><tr><th>VIP Level</th><th>Investment (Birr)</th><th>Daily Income</th></tr></thead><tbody>
+    <tr><td><span class="vip-badge v1">V1</span></td><td class="amount-cell">7,000</td><td class="income-cell">454</td></tr>
+    <tr><td><span class="vip-badge v2">V2</span></td><td class="amount-cell">14,000</td><td class="income-cell">655</td></tr>
+    <tr><td><span class="vip-badge v3">V3</span></td><td class="amount-cell">25,000</td><td class="income-cell">895</td></tr>
+    <tr><td><span class="vip-badge v4">V4</span></td><td class="amount-cell">35,000</td><td class="income-cell">1,515</td></tr>
+    <tr><td><span class="vip-badge v5">V5</span></td><td class="amount-cell">40,000</td><td class="income-cell">3,850</td></tr>
+    <tr><td><span class="vip-badge v6">V6</span></td><td class="amount-cell">80,000</td><td class="income-cell">5,568</td></tr>
+    <tr><td><span class="vip-badge v8">V8</span></td><td class="amount-cell">120,000</td><td class="income-cell">32,300</td></tr>
+    <tr><td><span class="vip-badge v9">V9</span></td><td class="amount-cell">165,000</td><td class="income-cell">57,878</td></tr>
+  </tbody></table></div>
+</div>
+<!-- RECHARGE -->
+<div class="page" id="pageRecharge">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="recharge-header"><h2>RECHARGE</h2><div class="telebirr-icon-wrap"><i class="fas fa-mobile-alt"></i></div></div>
+  <div class="telebirr-info-box">
+    <div class="tb-label">Send payment to this Telebirr number</div>
+    <div class="tb-number" onclick="copyNumber()">0956899452</div>
+    <div class="tb-hint">Open your Telebirr app and send the exact amount to the number above, then enter the Transaction ID below.</div>
+    <button class="tb-copy" onclick="copyNumber()"><i class="fas fa-copy"></i> Copy Number</button>
+  </div>
+  <div class="recharge-section">
+    <label>Recharge Amount</label>
+    <div class="recharge-input-wrap"><input type="number" id="rechargeAmount" placeholder="0" min="1" oninput="clearPresetSelection()"><div class="unit">ETB</div></div>
+    <div class="amount-presets">
+      <div class="amount-preset" onclick="selectPreset(this,700)">700</div><div class="amount-preset" onclick="selectPreset(this,1400)">1,400</div><div class="amount-preset" onclick="selectPreset(this,2800)">2,800</div><div class="amount-preset" onclick="selectPreset(this,7000)">7,000</div><div class="amount-preset" onclick="selectPreset(this,14000)">14,000</div><div class="amount-preset" onclick="selectPreset(this,25000)">25,000</div>
+    </div>
+  </div>
+  <div class="recharge-section">
+    <label>Transaction ID <span style="color:var(--danger);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;">* Required</span></label>
+    <div class="recharge-input-wrap"><input type="text" id="transactionId" placeholder="Enter Telebirr Transaction ID" class="normal-input" style="font-family:monospace;font-size:14px;letter-spacing:1px;text-transform:uppercase;"></div>
+  </div>
+  <div class="tid-hint"><i class="fas fa-info-circle"></i> After sending money via Telebirr, you will receive a Transaction ID. Enter it exactly as shown. Each ID can only be used once. Valid transactions will add balance immediately.</div>
+  <div style="padding:0 20px;"><button class="btn-primary btn-telebirr" onclick="handleRecharge()"><i class="fas fa-check-circle"></i> Submit & Verify</button></div>
+</div>
+<!-- WITHDRAW -->
+<div class="page" id="pageWithdraw">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="vip-page-title" style="padding-top:24px;">Withdraw</div>
+  <div class="vip-page-sub">Withdraw your earnings via Telebirr</div>
+  <div class="wd-stats-row">
+    <div class="wd-stat-box"><span class="wsb-icon" style="color:var(--green);"><i class="fas fa-wallet"></i></span><div class="wsb-value" style="color:var(--green);" id="wdAvailBal">ETB 350</div><div class="wsb-label">Available</div></div>
+    <div class="wd-stat-box"><span class="wsb-icon" style="color:var(--gold);"><i class="fas fa-clock"></i></span><div class="wsb-value" style="color:var(--gold);" id="wdNextSlot">--:--</div><div class="wsb-label">Next Slot</div></div>
+    <div class="wd-stat-box"><span class="wsb-icon" style="color:var(--warning);"><i class="fas fa-percentage"></i></span><div class="wsb-value" style="color:var(--warning);">15%</div><div class="wsb-label">Fee</div></div>
+  </div>
+  <div class="wd-schedule-card">
+    <div class="wd-schedule-header"><div class="wsh-icon"><i class="fas fa-calendar-alt"></i></div><div><h3>Withdrawal Schedule</h3><p id="wdTodayLabel">Today's processing windows</p></div></div>
+    <div class="wd-time-row"><div class="wtr-time">09:00 - 11:00</div><div class="wtr-sep"></div><div class="wtr-info"><h4>Morning Session</h4><p>First batch processing</p></div><span class="wtr-status" id="wdSlot1Status">Active</span></div>
+    <div class="wd-time-row"><div class="wtr-time">13:00 - 15:00</div><div class="wtr-sep"></div><div class="wtr-info"><h4>Afternoon Session</h4><p>Second batch processing</p></div><span class="wtr-status" id="wdSlot2Status">Upcoming</span></div>
+    <div class="wd-time-row"><div class="wtr-time">17:00 - 19:00</div><div class="wtr-sep"></div><div class="wtr-info"><h4>Evening Session</h4><p>Final batch processing</p></div><span class="wtr-status" id="wdSlot3Status">Upcoming</span></div>
+  </div>
+  <div class="wd-rules-card"><h4><i class="fas fa-info-circle"></i> Withdrawal Rules</h4><div class="wd-rule-item"><i class="fas fa-circle"></i> Only processed during scheduled slots</div><div class="wd-rule-item"><i class="fas fa-circle"></i> 15% service fee deducted</div><div class="wd-rule-item"><i class="fas fa-circle"></i> Minimum: ETB 100, Max 3 per day</div><div class="wd-rule-item"><i class="fas fa-circle"></i> Sent via Telebirr, no Sundays</div></div>
+  <div class="recharge-section"><label>Withdraw Amount (ETB)</label><div class="recharge-input-wrap"><input type="number" id="withdrawAmount" placeholder="0" min="100"><div class="unit">ETB</div></div></div>
+  <div class="recharge-section"><label>Telebirr Number</label><div class="recharge-input-wrap"><input type="tel" id="withdrawBank" placeholder="09XX XXX XXX" class="normal-input"><div class="unit"><i class="fas fa-mobile-alt" style="color:var(--telebirr)"></i></div></div></div>
+  <div class="recharge-section"><label>Account Holder Name</label><div class="recharge-input-wrap"><input type="text" id="withdrawName" placeholder="Full name" class="normal-input"></div></div>
+  <div style="padding:0 20px 20px;"><button class="btn-primary btn-telebirr" onclick="handleWithdraw()"><i class="fas fa-mobile-alt"></i> Submit Withdrawal</button></div>
+</div>
+<!-- RECORDS -->
+<div class="page" id="pageRecords">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="vip-page-title" style="padding-top:30px;">Records</div>
+  <div class="vip-page-sub">View your transaction history</div>
+  <div class="records-tabs">
+    <button class="records-tab active" onclick="switchRecordTab(this,'recharge')">Recharge</button>
+    <button class="records-tab" onclick="switchRecordTab(this,'product')">Products</button>
+    <button class="records-tab" onclick="switchRecordTab(this,'withdraw')">Withdrawal</button>
+  </div>
+  <div class="record-list" id="rechargeRecords"></div>
+  <div class="record-list" id="productRecords" style="display:none;">
+    <div class="record-card"><div class="record-top"><span class="record-order">P2605061102341</span><span class="record-status status-pending">Pending</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Product</div><div class="rdi-value rdi-product">VIP V1</div></div><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-value rdi-amount">ETB 7,000</div></div><div class="record-detail-item"><div class="rdi-label">Date</div><div class="rdi-date">05/06/2026<br>11:02:34</div></div></div></div>
+  </div>
+  <div class="record-list" id="withdrawRecords" style="display:none;">
+    <div class="record-card"><div class="record-top"><span class="record-order">B2605070702190333</span><span class="record-status status-pending">Pending</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-value rdi-amount">ETB 486</div></div><div class="record-detail-item"><div class="rdi-label">Arrival</div><div class="rdi-value rdi-arrival">ETB 410</div></div><div class="record-detail-item"><div class="rdi-label">Schedule</div><div class="rdi-value rdi-schedule">Morning<br>09:00-11:00</div></div></div></div>
+    <div class="record-card"><div class="record-top"><span class="record-order">B2605061745580064</span><span class="record-status status-pending">Pending</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-value rdi-amount">ETB 1,353</div></div><div class="record-detail-item"><div class="rdi-label">Arrival</div><div class="rdi-value rdi-arrival">ETB 1,150</div></div><div class="record-detail-item"><div class="rdi-label">Schedule</div><div class="rdi-value rdi-schedule">Evening<br>17:00-19:00</div></div></div></div>
+  </div>
+</div>
+<!-- SUPPORT -->
+<div class="page" id="pageSupport">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="support-hero"><div class="support-hero-icon"><i class="fas fa-life-ring"></i></div><h2>Support Center</h2><p>Get help from our team. We usually respond within a few minutes.</p></div>
+  <div class="support-section"><div class="support-section-title"><i class="fas fa-comment-dots"></i> Contact Channels</div>
+    <a href="https://t.me/ENM_113" target="_blank" rel="noopener noreferrer" class="support-channel" style="border-color:rgba(0,136,204,0.3);"><div class="sc-icon" style="background:rgba(0,136,204,0.18);color:#0088cc;font-size:22px;"><i class="fab fa-telegram-plane"></i></div><div class="sc-text"><h4>Telegram Support</h4><p>@ENM_113 - Chat with us directly</p></div><span class="sc-tag sc-tag-open">Open Now</span></a>
+    <div class="support-channel" onclick="showToast('Email: support@enm-platform.com','success')"><div class="sc-icon" style="background:rgba(255,171,64,0.12);color:var(--warning);"><i class="fas fa-envelope"></i></div><div class="sc-text"><h4>Email Support</h4><p>support@enm-platform.com</p></div><i class="fas fa-chevron-right sc-arrow"></i></div>
+  </div>
+  <div class="support-section"><div class="support-section-title"><i class="fas fa-bolt" style="color:var(--gold);"></i> Quick Help</div>
+    <div style="padding:18px;background:var(--card);border:1px solid var(--border);border-radius:14px;">
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px;">For the fastest response, contact us on Telegram at <strong style="color:#0088cc;">@ENM_113</strong>. Our support team is available to help with recharge, withdrawals, products, or account issues.</p>
+      <a href="https://t.me/ENM_113" target="_blank" rel="noopener noreferrer" style="display:flex;align-items:center;justify-content:center;gap:10px;padding:13px;background:linear-gradient(135deg,#0088cc,#00a8e8);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Outfit',sans-serif;text-decoration:none;"><i class="fab fa-telegram-plane" style="font-size:18px;"></i> Open Telegram Chat</a>
+    </div>
+  </div>
+  <div class="support-section"><div class="support-section-title"><i class="fas fa-question-circle"></i> FAQ</div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How do I recharge? <i class="fas fa-chevron-down"></i></div><div class="faq-a"><p>Go to Recharge, enter amount, send via Telebirr to 0956899452, then enter your Transaction ID to verify and add balance.</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Why is my transaction rejected? <i class="fas fa-chevron-down"></i></div><div class="faq-a"><p>If you see "Transaction ID already used", it means this ID has been submitted before. Each Telebirr transaction generates a unique ID. Make sure you're entering the correct one.</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Why are tasks locked? <i class="fas fa-chevron-down"></i></div><div class="faq-a"><p>Tasks require at least one VIP product purchase. Balance from recharge alone does not unlock tasks.</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">When are withdrawals processed? <i class="fas fa-chevron-down"></i></div><div class="faq-a"><p>3 daily slots: 09:00-11:00, 13:00-15:00, 17:00-19:00. No Sundays.</p></div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What is the withdrawal fee? <i class="fas fa-chevron-down"></i></div><div class="faq-a"><p>15% service fee. Withdraw ETB 1,000, receive ETB 850.</p></div></div>
+  </div>
+  <div class="support-section"><div class="support-section-title"><i class="fas fa-ticket-alt"></i> Submit a Ticket</div>
+    <div class="ticket-form">
+      <div class="form-group"><label>Category</label><select id="ticketCategory"><option value="">Select category</option><option value="recharge">Recharge Issue</option><option value="withdraw">Withdrawal Issue</option><option value="product">Product Issue</option><option value="task">Task Issue</option><option value="account">Account Problem</option><option value="other">Other</option></select></div>
+      <div class="form-group"><label>Describe Your Issue</label><textarea id="ticketMessage" placeholder="Please describe your problem in detail..."></textarea></div>
+      <button class="btn-submit-ticket" onclick="handleSubmitTicket()"><i class="fas fa-paper-plane"></i> Submit Ticket</button>
+    </div>
+  </div>
+</div>
+<!-- ABOUT -->
+<div class="page" id="pageAbout">
+  <div class="top-bar"><div class="brand">ENM</div><button class="back-btn" onclick="navTo('pageHome',0)"><i class="fas fa-arrow-left"></i> Back</button></div>
+  <div class="about-content">
+    <h3>About ENM</h3><p>ENM is a leading investment platform designed to help users grow their wealth through structured VIP investment plans.</p>
+    <h3>How It Works</h3><p>Choose a VIP level, purchase the product, and start receiving daily income. Complete tasks for bonus rewards.</p>
+    <h3>Payment Method</h3><p>All payments via Telebirr to 0956899452. Enter your Transaction ID to verify and add balance.</p>
+    <h3>Support</h3><p>Telegram: <strong style="color:#0088cc;">@ENM_113</strong></p>
+    <h3>Working Hours</h3><p>Monday - Saturday, 9:00 AM - 7:00 PM. Sunday - Closed.</p>
+    <h3>Version</h3><p>ENM v2.7.0</p>
+  </div>
+</div>
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="nav-item active" onclick="navTo('pageHome',0)"><i class="fas fa-home"></i><span>Home</span></button>
+  <button class="nav-item" onclick="navTo('pageTasks',1)"><i class="fas fa-tasks"></i><span>Tasks</span></button>
+  <button class="nav-item" onclick="navTo('pageProducts',2)"><i class="fas fa-shopping-bag"></i><span>Products</span></button>
+  <button class="nav-item" onclick="navTo('pageRecharge',3)"><i class="fas fa-bolt"></i><span>Recharge</span></button>
+  <button class="nav-item" onclick="navTo('pageHome',4)"><i class="fas fa-user"></i><span>Mine</span></button>
+</nav>
+</div>
+
+<script>
+  var currentUser=null,checkedIn=false,hasPurchasedProduct=false,taskTotalEarned=0,currentBalance=350;
+  var navPages=['pageHome','pageTasks','pageProducts','pageRecharge','pageWithdraw','pageRecords','pageSupport','pageAbout','pageVip'];
+  var products=[{id:'V1',name:'VIP V1 Plan',price:7000,income:454,color:'#00c853',desc:'Basic investment plan',icon:'V1'},{id:'V2',name:'VIP V2 Plan',price:14000,income:655,color:'#00b0ff',desc:'Silver investment plan',icon:'V2'},{id:'V3',name:'VIP V3 Plan',price:25000,income:895,color:'#ffab40',desc:'Gold investment plan',icon:'V3'},{id:'V4',name:'VIP V4 Plan',price:35000,income:1515,color:'#ff5252',desc:'Platinum investment plan',icon:'V4'},{id:'V5',name:'VIP V5 Plan',price:40000,income:3850,color:'#d500f9',desc:'Diamond investment plan',icon:'V5'},{id:'V6',name:'VIP V6 Plan',price:80000,income:5568,color:'#ffd740',desc:'Elite investment plan',icon:'V6'},{id:'V8',name:'VIP V8 Plan',price:120000,income:32300,color:'#ff4081',desc:'Master investment plan',icon:'V8'},{id:'V9',name:'VIP V9 Plan',price:165000,income:57878,color:'#ffd740',desc:'Supreme investment plan',icon:'V9'}];
+  var dailyTasks=[{id:'dt_share',name:'Share on Social Media',desc:'Share ENM with friends on any platform',reward:25,icon:'fa-share-alt',color:'rgba(0,176,255,0.12)',iconColor:'#00b0ff'},{id:'dt_watch',name:'Watch Promotional Video',desc:'Watch a short video to completion',reward:15,icon:'fa-play-circle',color:'rgba(255,64,129,0.12)',iconColor:'#ff4081'},{id:'dt_visit',name:'Visit Product Page',desc:'Browse VIP products for 30 seconds',reward:10,icon:'fa-eye',color:'rgba(0,200,83,0.12)',iconColor:'#00c853'},{id:'dt_read',name:'Read Investment Guide',desc:'Read the VIP level table',reward:10,icon:'fa-book-open',color:'rgba(255,215,64,0.12)',iconColor:'#ffd740'},{id:'dt_invite',name:'Invite a Friend',desc:'Share your code with a new user',reward:50,icon:'fa-user-plus',color:'rgba(213,0,249,0.12)',iconColor:'#d500f9'},{id:'dt_rate',name:'Rate ENM',desc:'Rate your experience',reward:20,icon:'fa-star',color:'rgba(255,171,64,0.12)',iconColor:'#ffab40'}];
+  var oneTimeTasks=[{id:'ot_first_recharge',name:'First Recharge',desc:'Complete your first recharge',reward:30,icon:'fa-bolt',color:'rgba(0,166,81,0.12)',iconColor:'#00c85e'},{id:'ot_first_product',name:'First Product Purchase',desc:'Purchase your first VIP plan',reward:100,icon:'fa-gem',color:'rgba(255,215,64,0.12)',iconColor:'#ffd740'},{id:'ot_first_withdraw',name:'First Withdrawal',desc:'Complete your first withdrawal',reward:50,icon:'fa-wallet',color:'rgba(0,200,83,0.12)',iconColor:'#00c853'},{id:'ot_3products',name:'Purchase 3 Products',desc:'Buy 3 different VIP plans',reward:200,icon:'fa-layer-group',color:'rgba(0,176,255,0.12)',iconColor:'#00b0ff'},{id:'ot_7checkins',name:'7-Day Streak',desc:'Check in 7 consecutive days',reward:150,icon:'fa-fire',color:'rgba(255,82,82,0.12)',iconColor:'#ff5252'}];
+  var taskState={};
+  function getTodayKey(){var d=new Date();return ''+d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate());}
+  function loadTaskState(){try{var s=localStorage.getItem('enm_tasks');if(s)taskState=JSON.parse(s);}catch(e){}}
+  function saveTaskState(){try{localStorage.setItem('enm_tasks',JSON.stringify(taskState));}catch(e){}}
+  function isTaskDone(id){return taskState[getTodayKey()+'_'+id]===true;}
+  function isOneTimeDone(id){return taskState['ot_'+id]===true;}
+  function markTaskDone(id){taskState[getTodayKey()+'_'+id]=true;saveTaskState();}
+  function markOneTimeDone(id){taskState['ot_'+id]=true;saveTaskState();}
+  function checkProductPurchased(){var l=document.getElementById('productRecords');if(l&&l.children.length>0)hasPurchasedProduct=true;try{if(localStorage.getItem('enm_product_bought')==='true')hasPurchasedProduct=true;}catch(e){}}
+
+  // Balance management
+  function getBalance(){return currentBalance;}
+  function setBalance(val){currentBalance=val;try{localStorage.setItem('enm_balance',val);}catch(e){}}
+  function addBalance(amount){currentBalance+=amount;setBalance(currentBalance);}
+  function loadBalance(){try{var b=localStorage.getItem('enm_balance');if(b)currentBalance=parseFloat(b)||350;}catch(e){currentBalance=350;}}
+  function displayBalance(){var el=document.getElementById('balanceValue');if(el)el.textContent=currentBalance.toLocaleString();}
+
+  function buildProducts(){var g=document.getElementById('productsGrid');if(!g)return;var h='';for(var i=0;i<products.length;i++){var p=products[i];h+='<div class="product-card"><div class="product-top"><div class="product-icon" style="background:linear-gradient(135deg,'+p.color+','+p.color+'88)">'+p.icon+'</div><div class="product-info"><h3>'+p.name+'</h3><p>'+p.desc+'</p></div></div><div class="product-mid"><div class="product-price"><small>ETB</small> '+p.price.toLocaleString()+'</div><div class="product-income"><div class="pi-label">Daily Income</div><div class="pi-value">ETB '+p.income.toLocaleString()+'</div></div></div><div class="product-bot"><button class="btn-buy" onclick="handleBuyProduct(\''+p.id+'\')"><i class="fas fa-shopping-cart"></i> Buy Now</button></div></div>';}g.innerHTML=h;}
+
+  function buildTasks(){checkProductPurchased();var locked=!hasPurchasedProduct;document.getElementById('taskLockBanner').style.display=locked?'block':'none';document.getElementById('taskProgressBar').style.display=locked?'none':'block';var dH='',doneC=0;for(var i=0;i<dailyTasks.length;i++){var t=dailyTasks[i],done=isTaskDone(t.id);if(done)doneC++;var cc='task-card'+(locked?' task-locked':'')+(done?' task-done':'');var rH='';if(locked)rH='<i class="fas fa-lock tc-lock-icon"></i>';else if(done)rH='<button class="tc-btn tc-btn-done"><i class="fas fa-check"></i> Done</button>';else rH='<div class="tc-reward"><small>ETB</small> '+t.reward+'</div><button class="tc-btn tc-btn-do" onclick="doTask(\''+t.id+'\','+t.reward+')">Do</button>';dH+='<div class="'+cc+'"><div class="tc-icon" style="background:'+t.color+';color:'+t.iconColor+';"><i class="fas '+t.icon+'"></i></div><div class="tc-info"><h4>'+t.name+'</h4><p>'+t.desc+'</p></div>'+rH+'</div>';}document.getElementById('dailyTasksList').innerHTML=dH;var oH='';for(var i=0;i<oneTimeTasks.length;i++){var t=oneTimeTasks[i],done=isOneTimeDone(t.id);var cc='task-card'+(locked?' task-locked':'')+(done?' task-done':'');var rH='';if(locked)rH='<i class="fas fa-lock tc-lock-icon"></i>';else if(done)rH='<button class="tc-btn tc-btn-done"><i class="fas fa-check"></i> Done</button>';else rH='<div class="tc-reward"><small>ETB</small> '+t.reward+'</div><button class="tc-btn tc-btn-claim" onclick="doOneTimeTask(\''+t.id+'\','+t.reward+')">Claim</button>';oH+='<div class="'+cc+'"><div class="tc-icon" style="background:'+t.color+';color:'+t.iconColor+';"><i class="fas '+t.icon+'"></i></div><div class="tc-info"><h4>'+t.name+'</h4><p>'+t.desc+'</p></div>'+rH+'</div>';}document.getElementById('oneTimeTasksList').innerHTML=oH;if(!locked){document.getElementById('taskProgressText').textContent=doneC+' / '+dailyTasks.length;document.getElementById('taskProgressFill').style.width=Math.round((doneC/dailyTasks.length)*100)+'%';}document.getElementById('taskTotalEarned').textContent=taskTotalEarned.toLocaleString();}
+
+  function doTask(id,reward){if(!hasPurchasedProduct){showToast('Purchase a VIP product first','error');return;}if(isTaskDone(id))return;showToast('Completing task...','warning');setTimeout(function(){markTaskDone(id);taskTotalEarned+=reward;try{localStorage.setItem('enm_task_earned',taskTotalEarned);}catch(e){}showToast('Task completed! +ETB '+reward,'success');buildTasks();},1500);}
+  function doOneTimeTask(id,reward){if(!hasPurchasedProduct){showToast('Purchase a VIP product first','error');return;}if(isOneTimeDone(id))return;markOneTimeDone(id);taskTotalEarned+=reward;try{localStorage.setItem('enm_task_earned',taskTotalEarned);}catch(e){}showToast('Task completed! +ETB '+reward,'success');buildTasks();}
+
+  // Load used transaction IDs
+  function loadUsedTxIds(){try{var s=localStorage.getItem('enm_used_txids');return s?JSON.parse(s):[];}catch(e){return[];}}
+  function saveUsedTxIds(arr){try{localStorage.setItem('enm_used_txids',JSON.stringify(arr));}catch(e){}}
+  function isTxIdUsed(id){var ids=loadUsedTxIds();for(var i=0;i<ids.length;i++){if(ids[i]===id)return true;}return false;}
+  function addTxId(id){var ids=loadUsedTxIds();ids.push(id);saveUsedTxIds(ids);}
+
+  function updateWithdrawSchedule(){var now=new Date(),h=now.getHours(),day=now.getDay(),nst='--:--',isSun=(day===0),slots=[{s:9,e:11},{s:13,e:15},{s:17,e:19}];for(var i=0;i<slots.length;i++){var sl=slots[i],el=document.getElementById('wdSlot'+(i+1)+'Status');if(!el)continue;if(isSun){el.textContent='Closed';el.className='wtr-status wtr-closed';}else if(h>=sl.s&&h<sl.e){el.textContent='Active';el.className='wtr-status wtr-active';}else if(h<sl.s){el.textContent='Upcoming';el.className='wtr-status wtr-closed';if(nst==='--:--')nst=pad(sl.s)+':00';}else{el.textContent='Closed';el.className='wtr-status wtr-closed';}}if(!isSun&&h>=19)nst='09:00 (Next)';if(isSun)nst='Mon 09:00';var ne=document.getElementById('wdNextSlot');if(ne)ne.textContent=nst;var le=document.getElementById('wdTodayLabel');if(le){var days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];le.textContent=isSun?'Sunday - No withdrawals':days[day]+' processing windows';}}
+  function getScheduleSlot(){var h=new Date().getHours(),day=new Date().getDay();if(day===0)return 'Monday 09:00';var slots=[{s:9,e:11,n:'Morning'},{s:13,e:15,n:'Afternoon'},{s:17,e:19,n:'Evening'}];for(var i=0;i<slots.length;i++){if(h<slots[i].e)return slots[i].n+'\n'+pad(slots[i].s)+':00-'+pad(slots[i].e)+':00';}return 'Next Day\n09:00-11:00';}
+
+  function showPage(id){var pages=document.querySelectorAll('.page');for(var i=0;i<pages.length;i++)pages[i].classList.remove('active');document.getElementById(id).classList.add('active');var nav=document.getElementById('bottomNav');if(navPages.indexOf(id)!==-1)nav.classList.add('show');else nav.classList.remove('show');window.scrollTo(0,0);if(id==='pageWithdraw')updateWithdrawSchedule();if(id==='pageTasks')buildTasks();if(id==='pageHome'){displayBalance();}}
+  function navTo(pageId,navIdx){showPage(pageId);var items=document.querySelectorAll('.nav-item');for(var i=0;i<items.length;i++)items[i].classList.remove('active');if(navIdx>=0&&navIdx<items.length)items[navIdx].classList.add('active');}
+
+  function handleRegister(e){e.preventDefault();var phone=document.getElementById('regPhone').value.trim(),pass=document.getElementById('regPass').value,passC=document.getElementById('regPassConfirm').value,code=document.getElementById('regCode').value.trim();if(!phone||phone.length<9){showToast('Enter a valid phone number','error');return false;}if(pass.length<6){showToast('Password must be at least 6 characters','error');return false;}if(pass!==passC){showToast('Passwords do not match','error');return false;}if(!code){showToast('Enter invitation code','error');return false;}currentUser={phone:'+251 '+phone,level:'Lv1'};try{localStorage.setItem('enm_user',JSON.stringify(currentUser));}catch(err){}showToast('Registration successful!','success');setTimeout(function(){enterApp();},500);return false;}
+  function handleLogin(e){e.preventDefault();var phone=document.getElementById('loginPhone').value.trim(),pass=document.getElementById('loginPass').value;if(!phone||phone.length<9){showToast('Enter a valid phone number','error');return false;}if(!pass){showToast('Enter your password','error');return false;}currentUser={phone:'+251 '+phone,level:'Lv1'};try{localStorage.setItem('enm_user',JSON.stringify(currentUser));}catch(err){}showToast('Login successful!','success');setTimeout(function(){enterApp();},500);return false;}
+
+  function enterApp(){loadBalance();if(currentUser){document.getElementById('userPhone').textContent=currentUser.phone;document.getElementById('userAvatar').textContent=currentUser.phone.slice(-1);document.getElementById('userLevel').textContent=currentUser.level;}
+    loadTaskState();try{var te=localStorage.getItem('enm_task_earned');if(te)taskTotalEarned=parseInt(te)||0;}catch(e){}
+    checkProductPurchased();buildProducts();navTo('pageHome',0);
+  }
+
+  function handleSignOut(){showModal('Sign Out','Are you sure you want to sign out?',function(){currentUser=null;try{localStorage.removeItem('enm_user');localStorage.removeItem('enm_balance');}catch(e){}
+    checkedIn=false;var btn=document.getElementById('checkinBtn');btn.textContent='Check-in now';btn.classList.remove('done');document.getElementById('bottomNav').classList.remove('show');showPage('pageRegister');showToast('Signed out successfully','success');});}
+  function handleCheckin(){if(checkedIn)return;checkedIn=true;var btn=document.getElementById('checkinBtn');btn.textContent='Done';btn.classList.add('done');showToast('Check-in successful! Reward claimed.','success');}
+  function copyNumber(){var text='0956899452';if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(function(){showToast('Number copied!','success');});}else{var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');showToast('Number copied!','success');}catch(e){showToast('Please copy: 0956899452','warning');}document.body.removeChild(ta);}}
+  function toggleFaq(el){var item=el.parentNode,wasOpen=item.classList.contains('open'),all=document.querySelectorAll('.faq-item');for(var i=0;i<all.length;i++)all[i].classList.remove('open');if(!wasOpen)item.classList.add('open');}
+  function handleSubmitTicket(){var cat=document.getElementById('ticketCategory').value,msg=document.getElementById('ticketMessage').value.trim();if(!cat){showToast('Select a category','error');return;}if(!msg||msg.length<10){showToast('Describe your issue (min 10 characters)','error');return;}document.getElementById('ticketCategory').value='';document.getElementById('ticketMessage').value='';showToast('Ticket submitted! We will respond soon.','success');}
+  function selectPreset(el,amount){var ps=document.querySelectorAll('.amount-preset');for(var i=0;i<ps.length;i++)ps[i].classList.remove('selected');el.classList.add('selected');document.getElementById('rechargeAmount').value=amount;}
+  function clearPresetSelection(){var ps=document.querySelectorAll('.amount-preset');for(var i=0;i<ps.length;i++)ps[i].classList.remove('selected');}
+
+  // ===== RECHARGE WITH TRANSACTION ID =====
+  function handleRecharge() {
+    var amount = parseInt(document.getElementById('rechargeAmount').value);
+    var txId = document.getElementById('transactionId').value.trim().toUpperCase();
+    var tidInput = document.getElementById('transactionId');
+
+    // Validate amount
+    if (!amount || amount <= 0) {
+      showToast('Please enter a valid amount','error');
+      return;
+    }
+
+    // Validate Transaction ID
+    if (!txId || txId.length < 6) {
+      tidInput.classList.add('input-error');
+      showToast('Please enter a valid Transaction ID','error');
+      return;
+    } else {
+      tidInput.classList.remove('input-error');
+    }
+
+    // Check if Transaction ID already used
+    if (isTxIdUsed(txId)) {
+      tidInput.classList.add('input-error');
+      showToast('This Transaction ID has already been used!','error');
+      return;
+    }
+
+    // Valid transaction - add balance
+    showModal('Confirm Recharge','Submit ETB '+amount.toLocaleString()+' with Transaction ID "'+txId+'"? This will add ETB '+amount.toLocaleString()+' to your balance immediately.',function(){
+      // Add the balance
+      addBalance(amount);
+      // Save the transaction ID as used
+      addTxId(txId);
+      // Clear form
+      document.getElementById('rechargeAmount').value = '';
+      document.getElementById('transactionId').value = '';
+      clearPresetSelection();
+      // Create record with Completed status
+      addRechargeRecord(amount, txId, true);
+      // Update balance display
+      displayBalance();
+      // Update withdraw available balance
+      var wbEl = document.getElementById('wdAvailBal');
+      if(wbEl) wbEl.textContent = 'ETB ' + getBalance().toLocaleString();
+      showToast('Recharge successful! +ETB '+amount.toLocaleString()+' added to balance','success');
+    });
+  }
+
+  function addRechargeRecord(amount, txId, completed) {
+    var now=new Date();
+    var ds=pad(now.getMonth()+1)+'/'+pad(now.getDate())+'/'+now.getFullYear();
+    var ts=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    var oid='T'+now.getFullYear().toString().slice(2)+pad(now.getMonth()+1)+pad(now.getDate())+pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds())+Math.floor(Math.random()*100);
+    var statusClass = completed ? 'status-completed' : 'status-pending';
+    var statusText = completed ? 'Completed' : 'Pending';
+    var c=document.createElement('div');c.className='record-card';c.style.animation='pi .35s ease-out';
+    c.innerHTML='<div class="record-top"><span class="record-order">'+oid+'</span><span class="'+statusClass+'">'+statusText+'</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-amount">ETB '+amount.toLocaleString()+'</div></div><div class="record-detail-item"><div class="rdi-label">Method</div><div class="rdi-value" style="color:var(--telebirr-light);font-size:13px;">Telebirr</div></div><div class="record-detail-item"><div class="rdi-label">Date</div><div class="rdi-date">'+ds+'<br>'+ts+'</div></div></div>';
+    // Insert at top of recharge records
+    var list=document.getElementById('rechargeRecords');
+    list.insertBefore(c,list.firstChild);
+  }
+
+  function handleBuyProduct(pid){
+    var product=null;for(var i=0;i<products.length;i++){if(products[i].id===pid){product=products[i];break;}}if(!product)return;
+    showModal('Buy '+product.name,'Purchase '+product.name+' for ETB '+product.price.toLocaleString()+'? Daily income: ETB '+product.income.toLocaleString()+'. Status: Pending.',function(){
+      addProductRecord(product);hasPurchasedProduct=true;try{localStorage.setItem('enm_product_bought','true');}catch(e){}
+      showToast(product.name+' purchased - Status: Pending','warning');
+    });
+  }
+
+  function addProductRecord(product){
+    var now=new Date(),ds=pad(now.getMonth()+1)+'/'+pad(now.getDate())+'/'+now.getFullYear(),ts=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    var oid='P'+now.getFullYear().toString().slice(2)+pad(now.getMonth()+1)+pad(now.getDate())+pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds())+Math.floor(Math.random()*100);
+    var c=document.createElement('div');c.className='record-card';c.style.animation='pi .35s ease-out';
+    c.innerHTML='<div class="record-top"><span class="record-order">'+oid+'</span><span class="status-pending">Pending</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Product</div><div class="rdi-value rdi-product">'+product.name+'</div></div><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-amount">ETB '+product.price.toLocaleString()+'</div></div><div class="record-detail-item"><div class="rdi-label">Date</div><div class="rdi-date">'+ds+'<br>'+ts+'</div></div></div>';
+    document.getElementById('productRecords').insertBefore(c,document.getElementById('productRecords').firstChild);
+  }
+
+  function handleWithdraw(){
+    var amount=parseInt(document.getElementById('withdrawAmount').value),telebirr=document.getElementById('withdrawBank').value.trim(),name=document.getElementById('withdrawName').value.trim(),day=new Date().getDay();
+    if(day===0){showToast('No withdrawals on Sundays','error');return;}
+    if(!amount||amount<100){showToast('Minimum withdrawal is ETB 100','error');return;}
+    if(!telebirr||telebirr.length<10){showToast('Enter a valid Telebirr number','error');return;}
+    if(!name){showToast('Enter account holder name','error');return;}
+    var bal=getBalance();if(amount>bal){showToast('Insufficient balance','error');return;}
+    var arrival=Math.round(amount*0.85),slotInfo=getScheduleSlot(),slotDisplay=slotInfo.replace('\n',' ');
+    showModal('Confirm Withdrawal','Withdraw ETB '+amount.toLocaleString()+' to Telebirr '+telebirr+'? Arrival: ETB '+arrival.toLocaleString()+' (15% fee). Schedule: '+slotDisplay+'. Status: Pending.',function(){
+      addWithdrawRecord(amount,arrival,slotDisplay);
+      document.getElementById('withdrawAmount').value='';document.getElementById('withdrawBank').value='';document.getElementById('withdrawName').value='';
+      showToast('Withdrawal submitted - Status: Pending','warning');
+    });
+  }
+
+  function addWithdrawRecord(amount,arrival,slotDisplay){
+    var now=new Date(),ds=pad(now.getMonth()+1)+'/'+pad(now.getDate())+'/'+now.getFullYear(),ts=pad(now.getHours())+':'+pad(now.getMinutes())+':'+pad(now.getSeconds());
+    var oid='B'+now.getFullYear().toString().slice(2)+pad(now.getMonth()+1)+pad(now.getDate())+pad(now.getHours())+pad(now.getMinutes())+pad(now.getSeconds())+Math.floor(Math.random()*1000);
+    var sl=slotDisplay.split(' '),c=document.createElement('div');c.className='record-card';c.style.animation='pi .35s ease-out';
+    c.innerHTML='<div class="record-top"><span class="record-order">'+oid+'</span><span class="status-pending">Pending</span></div><div class="record-details"><div class="record-detail-item"><div class="rdi-label">Amount</div><div class="rdi-amount">ETB '+amount.toLocaleString()+'</div></div><div class="record-detail-item"><div class="rdi-label">Arrival</div><div class="rdi-arrival">ETB '+arrival.toLocaleString()+'</div></div><div class="record-detail-item"><div class="rdi-label">Schedule</div><div class="rdi-schedule">'+sl[0]+'<br>'+sl[1]+'</div></div></div>';
+    document.getElementById('withdrawRecords').insertBefore(c,document.getElementById('withdrawRecords').firstChild);
+  }
+
+  function pad(n){return n<10?'0'+n:''+n;}
+  function switchRecordTab(btn,type){var tabs=document.querySelectorAll('.records-tab');for(var i=0;i<tabs.length;i++)tabs[i].classList.remove('active');btn.classList.add('active');document.getElementById('rechargeRecords').style.display=type==='recharge'?'block':'none';document.getElementById('productRecords').style.display=type==='product'?'block':'none';document.getElementById('withdrawRecords').style.display=type==='withdraw'?'block':'none';}
+  function showToast(message,type){var c=document.getElementById('toastContainer'),t=document.createElement('div');t.className='toast toast-'+type;var icons={success:'fa-check-circle',warning:'fa-clock',error:'fa-exclamation-circle'};t.innerHTML='<i class="fas '+(icons[type]||icons.success)+'"></i> '+message;c.appendChild(t);setTimeout(function(){if(t.parentNode)t.remove();},3200);}
+  function showModal(title,message,onConfirm){document.getElementById('modalTitle').textContent=title;document.getElementById('modalMessage').textContent=message;document.getElementById('modal-overlay').classList.add('show');document.getElementById('modalConfirmBtn').onclick=function(){closeModal();if(onConfirm)onConfirm();};}
+  function closeModal(){document.getElementById('modal-overlay').classList.remove('show');}
+  document.getElementById('modal-overlay').addEventListener('click',function(e){if(e.target===e.currentTarget)closeModal();});
+
+  (function(){var canvas=document.getElementById('particles');if(!canvas||!canvas.getContext)return;var ctx=canvas.getContext('2d'),w=430,h=window.innerHeight;canvas.width=w;canvas.height=h;var pts=[];for(var i=0;i<25;i++)pts.push({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.5+0.5,dx:(Math.random()-0.5)*0.2,dy:(Math.random()-0.5)*0.2,a:Math.random()*0.2+0.08});function draw(){ctx.clearRect(0,0,w,h);for(var i=0;i<pts.length;i++){var p=pts[i];p.x+=p.dx;p.y+=p.dy;if(p.x<0)p.x=w;if(p.x>w)p.x=0;if(p.y<0)p.y=h;if(p.y>h)p.y=0;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fillStyle='rgba(0,200,83,'+p.a+')';ctx.fill();}for(var i=0;i<pts.length;i++){for(var j=i+1;j<pts.length;j++){var dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<80){ctx.beginPath();ctx.moveTo(pts[i].x,pts[i].y);ctx.lineTo(pts[j].x,pts[j].y);ctx.strokeStyle='rgba(0,200,83,'+(0.04*(1-d/80))+')';ctx.lineWidth=0.5;ctx.stroke();}}}requestAnimationFrame(draw);}draw();window.addEventListener('resize',function(){h=window.innerHeight;canvas.height=h;});})();
+  setInterval(updateWithdrawSchedule,30000);
+  (function(){try{var s=localStorage.getItem('enm_user');if(s){currentUser=JSON.parse(s);enterApp();}}catch(e){}})();
+</script>
+</body>
+</html>
